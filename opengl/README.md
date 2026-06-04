@@ -35,3 +35,6 @@ Vulkan and WebGPU partially overlap with OpenGL as newer explicit graphics APIs,
 
 OpenGL superseded older vendor-specific graphics APIs and workstation-era APIs for many cross-platform use cases, but it has not fully disappeared because its setup and mental model are still simpler than Vulkan.
 
+## Notes
+
+- [OpenGL linking and loading](./linking-and-loading.md)

@@ -1,5 +1,6 @@
 #include <cstdio>
 
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 namespace {
@@ -11,6 +12,11 @@ void framebuffer_size_callback(GLFWwindow*, int width, int height) {
     glViewport(0, 0, width, height);
 }
 } // namespace
+//
+void process_input(GLFWwindow *window){
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
 
 int main() {
     glfwSetErrorCallback(glfw_error_callback);
@@ -31,7 +37,16 @@ int main() {
         return 1;
     }
 
+
     glfwMakeContextCurrent(window);
+
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+        std::fprintf(stderr, "Failed to initialize glad\n");
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return 1;
+    }
+
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSwapInterval(1);
 
@@ -41,11 +56,9 @@ int main() {
     glViewport(0, 0, framebuffer_width, framebuffer_height);
 
     while (!glfwWindowShouldClose(window)) {
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-        }
+        process_input(window);
 
-        glClearColor(0.07f, 0.07f, 0.09f, 1.0f);
+        glClearColor(0.91f, 0.00f, 1.00f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glfwSwapBuffers(window);
