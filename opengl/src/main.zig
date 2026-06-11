@@ -1,12 +1,9 @@
 const std = @import("std");
-
 const c = @import("c");
 
-const Io = std.Io;
-// TODO: This callback needs to be passed to the C lib. So how do I make this follow the c abi?
-// extern fn framebuffer_size_callback(window c.GLFWwindow, width c_int, height c_int) {
-//   glViewport(0, 0, width, height);
-// }
+fn framebuffer_size_callback(_: ?*c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
+    c.glViewport(0, 0, width, height);
+}
 
 fn gladGlfwGetProcAddress(name: [*c]const u8) callconv(.c) ?*anyopaque {
     const proc = c.glfwGetProcAddress(name) orelse return null;
@@ -30,7 +27,7 @@ pub fn main() !void {
     if (c.gladLoadGLLoader(gladGlfwGetProcAddress) == 0) {
         return error.GladLoadFailed;
     }
-    // c.glfwSetFramebufferSizeCallback( window,);
+    _ = c.glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     c.glfwSwapInterval(1);
     var framebuffer_width: c_int, var framebuffer_height: c_int = .{ 0, 0 };
     c.glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
