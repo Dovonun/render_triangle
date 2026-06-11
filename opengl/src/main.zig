@@ -5,11 +5,6 @@ fn framebuffer_size_callback(_: ?*c.GLFWwindow, width: c_int, height: c_int) cal
     c.glViewport(0, 0, width, height);
 }
 
-fn gladGlfwGetProcAddress(name: [*c]const u8) callconv(.c) ?*anyopaque {
-    const proc = c.glfwGetProcAddress(name) orelse return null;
-    return @constCast(@ptrCast(proc));
-}
-
 pub fn main() !void {
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
 
@@ -24,9 +19,7 @@ pub fn main() !void {
     defer c.glfwDestroyWindow(window);
 
     c.glfwMakeContextCurrent(window);
-    if (c.gladLoadGLLoader(gladGlfwGetProcAddress) == 0) {
-        return error.GladLoadFailed;
-    }
+    if (c.gladLoadGLLoader(@constCast(@ptrCast(&c.glfwGetProcAddress))) == 0) return error.GladLoadFailed;
     _ = c.glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     c.glfwSwapInterval(1);
     var framebuffer_width: c_int, var framebuffer_height: c_int = .{ 0, 0 };
