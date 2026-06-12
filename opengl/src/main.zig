@@ -1,12 +1,16 @@
 const std = @import("std");
 const c = @import("c");
 
+fn glfw_error_callback(error_code: c_int, description: [*c]const u8) callconv(.c) void {
+    std.debug.print("GLFW error {}: {s}\n", .{ error_code, description });
+}
+
 fn framebuffer_size_callback(_: ?*c.GLFWwindow, width: c_int, height: c_int) callconv(.c) void {
     c.glViewport(0, 0, width, height);
 }
 
 pub fn main() !void {
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+    _ = c.glfwSetErrorCallback(glfw_error_callback);
 
     if (c.glfwInit() == 0) return error.GlfwInitFailed;
     defer c.glfwTerminate();
@@ -30,24 +34,22 @@ pub fn main() !void {
 
     // VBO Setup
 
-    const vertexShaderSource: [*c] const u8 =
+    const vertexShaderSource: [*c]const u8 =
         \\#version 330 core
         \\layout (location = 0) in vec3 aPos;
         \\out vec4 vertexColor;
         \\void main(){
         \\   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
         \\   vertexColor = vec4(0.5, 0.0, 0.0, 1.0);
-        \\};
+        \\}
     ;
 
-    const fragmentShaderSource: [*c] const u8 =
+    const fragmentShaderSource: [*c]const u8 =
         \\#version 330 core
-        \\layout (location = 0) in vec3 aPos;
-        \\out vec4 vertexColor;
+        \\out vec4 FragColor;
         \\void main(){
-        \\   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-        \\   vertexColor = vec4(0.5, 0.0, 0.0, 1.0);
-        \\};
+        \\   FragColor = vec4(1.0, 0.5, 0.2, 1.0);
+        \\}
     ;
     const vertices = [_]f32{ -0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0 };
 
@@ -75,7 +77,7 @@ pub fn main() !void {
     // fill VAO
     c.glBindVertexArray(VAO);
     c.glBindBuffer(c.GL_ARRAY_BUFFER, VBO);
-    c.glBufferData(c.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), &vertices, c.GL_STATIC_DRAW);
+    c.glBufferData(c.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), vertices[0..].ptr, c.GL_STATIC_DRAW);
     c.glVertexAttribPointer(0, 3, c.GL_FLOAT, c.GL_FALSE, 3 * @sizeOf(f32), null);
     c.glEnableVertexAttribArray(0);
 
